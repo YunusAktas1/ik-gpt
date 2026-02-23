@@ -72,6 +72,28 @@ class JobRepository {
   }
 }
 
+class ApplicationRepository {
+  constructor(storage) {
+    this.storage = storage;
+    this.key = "tf6:a";
+  }
+
+  async getAll() {
+    return (await this.storage.getJSON(this.key)) || {};
+  }
+
+  async saveAll(apps) {
+    await this.storage.setJSON(this.key, apps);
+  }
+
+  async create(app) {
+    const apps = await this.getAll();
+    apps[app.id] = app;
+    await this.saveAll(apps);
+    return app;
+  }
+}
+
 class StorageAdapter {
   get backend() {
     if (typeof window !== "undefined" && window.storage) return "window";
@@ -117,5 +139,6 @@ export function buildServices() {
     sessionRepo: new SessionRepository(storage),
     userRepo: new UserRepository(storage),
     jobRepo: new JobRepository(storage),
+    appRepo: new ApplicationRepository(storage),
   };
 }
